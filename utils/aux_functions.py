@@ -24,7 +24,7 @@ def download_dlib_model():
     with requests.get(dlib_model_link, stream=True) as r:
         print("Zip file size: ", np.round(len(r.content) / 1024 / 1024, 2), "MB")
         destination = (
-            "dlib_models" + os.path.sep + "shape_predictor_68_face_landmarks.dat.bz2"
+                "dlib_models" + os.path.sep + "shape_predictor_68_face_landmarks.dat.bz2"
         )
         if not os.path.exists(destination.rsplit(os.path.sep, 1)[0]):
             os.mkdir(destination.rsplit(os.path.sep, 1)[0])
@@ -34,7 +34,7 @@ def download_dlib_model():
                 fd.write(chunk)
     print("Extracting dlib model...")
     with bz2.BZ2File(destination) as fr, open(
-        "dlib_models/shape_predictor_68_face_landmarks.dat", "wb"
+            "dlib_models/shape_predictor_68_face_landmarks.dat", "wb"
     ) as fw:
         shutil.copyfileobj(fr, fw)
     print("Saved: ", destination)
@@ -59,7 +59,7 @@ def get_line(face_landmark, image, type="eye", debug=False):
 
     elif type == "nose_mid":
         nose_length = (
-            face_landmark["nose_bridge"][-1][1] - face_landmark["nose_bridge"][0][1]
+                face_landmark["nose_bridge"][-1][1] - face_landmark["nose_bridge"][0][1]
         )
         left_point = [left_eye_mid[0], left_eye_mid[1] + nose_length / 2]
         right_point = [right_eye_mid[0], right_eye_mid[1] + nose_length / 2]
@@ -68,22 +68,22 @@ def get_line(face_landmark, image, type="eye", debug=False):
         # ) / 2
 
         mid_pointY = (
-            face_landmark["nose_bridge"][-1][1] + face_landmark["nose_bridge"][0][1]
-        ) / 2
+                             face_landmark["nose_bridge"][-1][1] + face_landmark["nose_bridge"][0][1]
+                     ) / 2
         mid_pointX = (
-            face_landmark["nose_bridge"][-1][0] + face_landmark["nose_bridge"][0][0]
-        ) / 2
+                             face_landmark["nose_bridge"][-1][0] + face_landmark["nose_bridge"][0][0]
+                     ) / 2
         mid_point = (mid_pointX, mid_pointY)
 
     elif type == "nose_tip":
         nose_length = (
-            face_landmark["nose_bridge"][-1][1] - face_landmark["nose_bridge"][0][1]
+                face_landmark["nose_bridge"][-1][1] - face_landmark["nose_bridge"][0][1]
         )
         left_point = [left_eye_mid[0], left_eye_mid[1] + nose_length]
         right_point = [right_eye_mid[0], right_eye_mid[1] + nose_length]
         mid_point = (
-            face_landmark["nose_bridge"][-1][1] + face_landmark["nose_bridge"][0][1]
-        ) / 2
+                            face_landmark["nose_bridge"][-1][1] + face_landmark["nose_bridge"][0][1]
+                    ) / 2
 
     elif type == "bottom_lip":
         bottom_lip = face_landmark["bottom_lip"]
@@ -187,8 +187,8 @@ def line_intersection(line1, line2):
     segment_maxY = max(line2[0][1], line2[1][1])
 
     if (
-        segment_maxX + 1 >= x >= segment_minX - 1
-        and segment_maxY + 1 >= y >= segment_minY - 1
+            segment_maxX + 1 >= x >= segment_minX - 1
+            and segment_maxY + 1 >= y >= segment_minY - 1
     ):
         flag = True
 
@@ -335,10 +335,10 @@ def mask_face(image, face_location, six_points, angle, args, type="surgical"):
     face_height = face_location[2] - face_location[0]
     face_width = face_location[1] - face_location[3]
     image_face = image[
-        face_location[0] + int(face_height / 2) : face_location[2],
-        face_location[3] : face_location[1],
-        :,
-    ]
+                 face_location[0] + int(face_height / 2): face_location[2],
+                 face_location[3]: face_location[1],
+                 :,
+                 ]
 
     image_face = image
 
@@ -643,12 +643,12 @@ def is_image(path):
         image_extensions = ["png", "PNG", "jpg", "JPG"]
 
         if extensions[1:] in image_extensions:
-            return True 
+            return True
         else:
             print("Please input image file. png / jpg")
-            return False 
-    except: 
-        return False 
+            return False
+    except:
+        return False
 
 
 def get_available_mask_types(config_filename="masks/masks.cfg"):
