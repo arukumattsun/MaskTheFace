@@ -67,21 +67,24 @@ class MaskArgument(object):
         else:
             self.mask_type = random.choice(MASK_TYPE_LIST)
 
-    def set_mask_color_random(self):
+    def set_mask_color_random(self, use_texture=True):
         if self.mask_type == 'surgical':
             rand = random.random()
             if rand < 0.3:
                 self.color = COLOR_CODE_DICT[random.choice(COLOR_LIST)]
                 self.color_weight = random.uniform(0.4, 0.6)
-            elif rand < 0.35:
+                self.pattern = ''
+            elif rand < 0.35 and use_texture:
                 self.pattern = TEXTURE_PATH_DICT[random.choice(TEXTURE_LIST)]
                 self.pattern_weight = random.uniform(0.4, 0.6)
             else:
                 self.color_weight = 0.0
                 self.pattern_weight = 0.0
+                self.pattern = ''
         else:
             self.color_weight = 0.0
             self.pattern_weight = 0.0
+            self.pattern = ''
 
 
 def main():
@@ -107,7 +110,12 @@ def main():
     for i, in_path in tqdm(enumerate(image_paths)):
         mask_args.set_mask_type_random()
         mask_args.set_mask_color_random()
-        masked_image, mask, mask_binary_array, original_image = mask_image(in_path, mask_args)
+        try:
+            masked_image, mask, mask_binary_array, original_image = mask_image(in_path, mask_args)
+        except:
+            mask_args.set_mask_color_random(use_texture=False)
+            masked_image, mask, mask_binary_array, original_image = mask_image(in_path, mask_args)
+
         if not os.path.exists(os.path.dirname(out_paths[i])):
             os.makedirs(os.path.dirname(out_paths[i]))
 
