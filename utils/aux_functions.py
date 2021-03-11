@@ -637,6 +637,82 @@ def mask_image(image_path, args):
     return masked_images, mask, mask_binary_array, original_image
 
 
+def landmarks_to_bb(pt):
+    left = np.min(pt[:, 0])
+    right = np.max(pt[:, 0])
+    top = np.min(pt[:, 1])
+    bottom = np.max(pt[:, 1])
+    center = np.array([right - (right - left) / 2.0,
+                       bottom - (bottom - top) / 2.0])
+    size = (right - left + bottom - top) / 2 * 1.3
+    x1 = int(center[0] - size)
+    x2 = int(center[0] + size)
+    y1 = int(center[1] - size)
+    y2 = int(center[1] + size)
+
+    # return (x1, x2, y2, x1)
+    return (x1, x2, y1, y2)
+
+
+def mask_image_300wlp(image_path, args):
+    # Read the image
+    image = cv2.imread(image_path)
+    original_image = image.copy()
+    mask_type = args.mask_type
+    if args.code:
+        ind = random.randint(0, len(args.code_count) - 1)
+        mask_dict = args.mask_dict_of_dict[ind]
+        mask_type = mask_dict["type"]
+        args.color = mask_dict["color"]
+        args.pattern = mask_dict["texture"]
+        args.code_count[ind] += 1
+
+    elif mask_type == "random":
+        available_mask_types = get_available_mask_types()
+        mask_type = random.choice(available_mask_types)
+
+    # Process each face in the image
+    masked_images = []
+    mask_binary_array = []
+    mask = []
+    if args.lamdmarks is not None:
+        face_location = landmarks_to_bb(args.lamdmarks)
+        six_points_on_face, angle = args.six_points, args.angle
+        mask = []
+        if mask_type != "all":
+            if len(masked_images) > 0:
+                image = masked_images.pop(0)
+            image, mask_binary = mask_face(
+                image, face_location, six_points_on_face, angle, args, type=mask_type
+            )
+
+            # compress to face tight
+            face_height = face_location[2] - face_location[0]
+            face_width = face_location[1] - face_location[3]
+            masked_images.append(image)
+            mask_binary_array.append(mask_binary)
+            mask.append(mask_type)
+        else:
+            available_mask_types = get_available_mask_types()
+            for m in range(len(available_mask_types)):
+                if len(masked_images) == len(available_mask_types):
+                    image = masked_images.pop(m)
+                img, mask_binary = mask_face(
+                    image,
+                    face_location,
+                    six_points_on_face,
+                    angle,
+                    args,
+                    type=available_mask_types[m],
+                )
+                masked_images.insert(m, img)
+                mask_binary_array.insert(m, mask_binary)
+            mask = available_mask_types
+            cc = 1
+
+    return masked_images, mask, mask_binary_array, original_image
+
+
 def is_image(path):
     try:
         extensions = path[-4:]
